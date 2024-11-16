@@ -1,0 +1,53 @@
+# Import necessary libraries
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+# Load the Iris dataset
+iris = load_iris()
+
+# Create a DataFrame with the Iris dataset
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+
+# Add the target variable to the DataFrame
+df['target'] = iris.target
+
+# Standardize the features (important for PCA and t-SNE)
+scaler = StandardScaler()
+scaled_feature = scaler.fit_transform(df.iloc[:, :-1])  # Exclude the target column for scaling
+
+# Perform PCA (Principal Component Analysis) for dimensionality reduction
+pca = PCA(n_components=2)  # Reduce to 2 dimensions for visualization
+pca_component = pca.fit_transform(scaled_feature)
+
+# Create a DataFrame for PCA components and target values
+df_pca = pd.DataFrame(pca_component, columns=['PCA1', 'PCA2'])
+df_pca['target'] = df['target']
+
+# Plot the PCA results
+plt.figure(figsize=(4, 4))
+sns.scatterplot(x='PCA1', y='PCA2', hue='target', palette='viridis', data=df_pca)
+plt.title("PCA on Iris Data")  # Add title to the plot
+plt.show()  # Display the PCA plot
+
+# Print the correlation of the original features with the PCA components
+pca_correlation = pd.DataFrame(pca.components_, columns=iris.feature_names)
+print("Correlation of IrisData: ", pca_correlation)
+
+# Perform t-SNE (t-Distributed Stochastic Neighbor Embedding) for dimensionality reduction
+tsne = TSNE(n_components=2, random_state=42)  # Set random_state for reproducibility
+tsne_component = tsne.fit_transform(scaled_feature)
+
+# Create a DataFrame for t-SNE components and target values
+df_tsne = pd.DataFrame(tsne_component, columns=['TSNE1', 'TSNE2'])
+df_tsne['target'] = df['target']
+
+# Plot the t-SNE results
+plt.figure(figsize=(4, 4))
+sns.scatterplot(x='TSNE1', y='TSNE2', hue='target', palette='viridis', data=df_tsne)
+plt.title("TSNE on Iris Data")  # Add title to the plot
+plt.show()  # Display the t-SNE plot
